@@ -20,6 +20,21 @@ options=('!strip')
 source=("https://git.kernel.org/torvalds/t/${_srcname}.tar.gz"
         '0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
         '0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
+
+        '0001-iommu-rockchip-make-clock-handling-optional.patch'
+        '0002-CHROMIUM-arm64-dts-rockchip-add-bob-dts.patch'
+        '0003-CHROMIUM-arm64-dts-rockchip-add-the-rev2-support-for.patch'
+        '0004-CHROMIUM-arm64-dts-rockchip-change-the-dmc-opp-table.patch'
+        '0005-CHROMIUM-arm64-dts-rockchip-Bump-voltages-for-bob-re.patch'
+        '0006-CHROMIUM-arm64-dts-rockchip-remove-the-bump-50mv-for.patch'
+        '0007-CHROMIUM-arm64-dts-rockchip-Update-thermal-numbers-o.patch'
+        '0008-CHROMIUM-arm64-dts-rockchip-add-wifi-tx-power-table-.patch'
+        '0009-CHROMIUM-arm64-dts-rockchip-Change-DDR-part-for-bob-.patch'
+        '0010-CHROMIUM-drm-bridge-add-a-quirk-for-Bob-panel.patch'
+        '0011-CHROMIUM-arm64-dts-rockchip-Update-thermal-numbers-o.patch'
+        '0012-CHROMIUM-wip.patch'
+        '0013-CHROMIUM-panel-brightness-level-more-like-upstream.patch'
+
         'config'
         'kernel.its'
         'kernel.keyblock'
@@ -29,8 +44,23 @@ source=("https://git.kernel.org/torvalds/t/${_srcname}.tar.gz"
 md5sums=('09b58cecb1e7bef82b0e2ba4e0b65063'
          'c656b4169dd6c87f93dfb49edea3ddbf'
          '79459eaa00aa5de588c73f3076f0907b'
+
+         '05e5a8f2961cc8d198c20c7381908913'
+         '823d1df2c83c985f2bb3823c1da0c97a'
+         '30c7b75de6b9dff21feaf63dd15dec54'
+         '7a414fc3d045efa534e0167a5dd3b2bf'
+         'c0d93383be7e4dfb539c46de817cc2a5'
+         '413d813cf944aa25b0834eaf9d301054'
+         'e0579960225acb6d9b634d8d8c1578c1'
+         '5a3ffc8968a08e3721c1d1dff1c67165'
+         '0c63eafb0424f707a04a127b2a02b6a2'
+         'fab027c83cea408f64e73f2affdd9c4a'
+         'b11f524edd6e521fe1172a455d209361'
+         'fd7d4779c5481c50b06c42fe47b27eca'
+         '8879f1aec0e1082a3a90b737b9c86e42'
+
          '4e7785632dadf1ce44ca25fde9936941'
-         '11a4f35c50f0bde59c30182aa7b797b7'
+         '7937a696f4c70f6f47501341aeb53475'
          '61c5ff73c136ed07a7aadbf58db3d96a'
          '584777ae88bce2c5659960151b64c7d8'
          '25d8f6983c9a616946848c0e075a949c'
@@ -42,6 +72,20 @@ prepare() {
   # ALARM patches
   git apply ../0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
   git apply ../0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch
+
+  git apply ../0001-iommu-rockchip-make-clock-handling-optional.patch
+  git apply ../0002-CHROMIUM-arm64-dts-rockchip-add-bob-dts.patch
+  git apply ../0003-CHROMIUM-arm64-dts-rockchip-add-the-rev2-support-for.patch
+  git apply ../0004-CHROMIUM-arm64-dts-rockchip-change-the-dmc-opp-table.patch
+  git apply ../0005-CHROMIUM-arm64-dts-rockchip-Bump-voltages-for-bob-re.patch
+  git apply ../0006-CHROMIUM-arm64-dts-rockchip-remove-the-bump-50mv-for.patch
+  git apply ../0007-CHROMIUM-arm64-dts-rockchip-Update-thermal-numbers-o.patch
+  git apply ../0008-CHROMIUM-arm64-dts-rockchip-add-wifi-tx-power-table-.patch
+  git apply ../0009-CHROMIUM-arm64-dts-rockchip-Change-DDR-part-for-bob-.patch
+  git apply ../0010-CHROMIUM-drm-bridge-add-a-quirk-for-Bob-panel.patch
+  git apply ../0011-CHROMIUM-arm64-dts-rockchip-Update-thermal-numbers-o.patch
+  git apply ../0012-CHROMIUM-wip.patch
+  git apply ../0013-CHROMIUM-panel-brightness-level-more-like-upstream.patch
 
   cat "${srcdir}/config" > ./.config
 

@@ -1,0 +1,46 @@
+From 55f5005481edf5351594ac9c176e945f0380b459 Mon Sep 17 00:00:00 2001
+From: Caesar Wang <wxt@rock-chips.com>
+Date: Mon, 24 Apr 2017 11:52:33 +0800
+Subject: [PATCH 06/13] CHROMIUM: arm64: dts: rockchip: remove the bump 50mv
+ for bob little cpu
+
+As the previous *HACK* patch for stable on bob, we have update the
+new opp table for rk3399 op1 for now.
+
+BUG=b:37266390
+TEST=stressapptest+dvfs+S2R tests
+CQ-DEPEND=CL:479471
+
+Change-Id: Ia521f6b6be1998c926f72e63ba0938e89d331f9e
+Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+Reviewed-on: https://chromium-review.googlesource.com/485080
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+---
+ arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+index d6bf42633b9e..e6d0f250fc2d 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+@@ -59,8 +59,7 @@
+  * HACK for -rev2 to bump up voltage
+  *
+ 　* There's some extra voltage drop on early revs of bob due to board layout
+- * problems.  On -rev2 we're almost there, so only 50 mV for little cpu
+- * and center-logic.
++ * problems.  On -rev2 we're almost there, so only 50 mV for center-logic.
+  *
+  * NOTE: The 'regulator-microvolt-offset' is not a terribly well-tested and
+  * has some quirks (like I think it doesn't necessarily validate constraints
+@@ -70,7 +69,3 @@
+ &ppvar_centerlogic {
+ 	regulator-microvolt-offset = <50000>;
+ };
+-
+-&ppvar_litcpu {
+-	regulator-microvolt-offset = <50000>;
+-};
+-- 
+2.17.0
+

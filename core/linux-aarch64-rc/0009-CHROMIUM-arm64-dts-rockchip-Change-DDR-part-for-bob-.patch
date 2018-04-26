@@ -1,0 +1,233 @@
+From 2a258d39bdacfecbf92968d9c7880e4cc60dd951 Mon Sep 17 00:00:00 2001
+From: Caesar Wang <wxt@rock-chips.com>
+Date: Thu, 30 Mar 2017 14:42:37 +0800
+Subject: [PATCH 09/13] CHROMIUM: arm64: dts: rockchip: Change DDR part for bob
+ rev4+
+
+In testing, the extra voltage drop on early revs of bob is due to
+board layout problems. Reworks are prepared for bob rev4+.
+
+This CL is grouped into the following sections:
+
+* Enables 928 MHz for Bob rev4+, and older revs of bob still run 800 MHz.
+* Enables the ddr auto power down for Bob rev4+, Allow rev4+ to run it at
+  less than 800M.
+* Reverts the previous bump voltage for Bob rev4+.
+
+BUG=b:36666655
+TEST=stable tests on bob rev3, after the hardware reworked.
+
+Change-Id: If6af7f4bc4edc3468cc44069934e21d095f360e0
+Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+Reviewed-on: https://chromium-review.googlesource.com/446798
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+---
+ arch/arm64/boot/dts/rockchip/Makefile         |  1 +
+ .../boot/dts/rockchip/rk3399-gru-bob-r0.dts   | 34 ++++++++++
+ .../boot/dts/rockchip/rk3399-gru-bob-r2.dts   | 31 +++++++---
+ .../boot/dts/rockchip/rk3399-gru-bob-r4.dts   | 62 +++++++++++++++++++
+ .../boot/dts/rockchip/rk3399-gru-bob.dtsi     |  8 ---
+ 5 files changed, 120 insertions(+), 16 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r4.dts
+
+diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
+index 12434b20d68b..154e912ff46a 100644
+--- a/arch/arm64/boot/dts/rockchip/Makefile
++++ b/arch/arm64/boot/dts/rockchip/Makefile
+@@ -13,6 +13,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-firefly.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-gru-kevin.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-gru-bob-r0.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-gru-bob-r2.dtb
++dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-gru-bob-r4.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-puma-haikou.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-sapphire.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-sapphire-excavator.dtb
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r0.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r0.dts
+index 04c38cb9affa..83af09b8018c 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r0.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r0.dts
+@@ -51,7 +51,41 @@
+ 		     "google,bob", "google,gru", "rockchip,rk3399";
+ };
+ 
++/*
++ * HACK: Disabling the ddr auto power down on bob board, since the caused by
++ * the ripple of hardware.
++ */
++&dmc {
++	rockchip,pd_idle_dis_freq = <200000000>;
++	rockchip,sr_idle_dis_freq = <200000000>;
++	rockchip,sr_mc_gate_idle_dis_freq = <200000000>;
++	rockchip,standby_idle_dis_freq = <200000000>;
++};
++
++&dmc_opp_table {
++	opp02 {
++		opp-suspend;
++	};
++
++	/delete-node/ opp03;
++};
++
+ &pp3000_sd_slot {
+ 	/delete-property/ enable-active-high;
+ 	gpio = <&gpio4 29 GPIO_ACTIVE_LOW>;
+ };
++
++/*
++ * HACK for -rev0~1 to bump up voltage
++ *
++　* There's some extra voltage drop on early revs of bob due to board layout
++ * problems. On -rev0~1 we're almost there, so only 50 mV for center-logic.
++ *
++ * NOTE: The 'regulator-microvolt-offset' is not a terribly well-tested and
++ * has some quirks (like I think it doesn't necessarily validate constraints
++ * properly?), but seems to work and seems better than hardcoding every
++ * operating point everywhere.
++ */
++&ppvar_centerlogic {
++	regulator-microvolt-offset = <50000>;
++};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+index e6d0f250fc2d..bb4b7d68c00f 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+@@ -1,5 +1,5 @@
+ /*
+- * Google Gru-Bob Rev 2+ board device tree source
++ * Google Gru-Bob Rev 2~3 board device tree source
+  *
+  * Copyright 2016 Google, Inc
+  *
+@@ -47,19 +47,34 @@
+ 
+ / {
+ 	model = "Google Bob";
+-	compatible = "google,bob-rev11", "google,bob-rev10",
+-		     "google,bob-rev9", "google,bob-rev8",
+-		     "google,bob-rev7", "google,bob-rev6",
+-		     "google,bob-rev5", "google,bob-rev4",
+-		     "google,bob-rev3", "google,bob-rev2",
++	compatible = "google,bob-rev2", "google,bob-rev3",
+ 		     "google,bob", "google,gru", "rockchip,rk3399";
+ };
+ 
+ /*
+- * HACK for -rev2 to bump up voltage
++ * HACK: Disabling the ddr auto power down on bob board, since the caused by
++ * the ripple of hardware.
++ */
++&dmc {
++	rockchip,pd_idle_dis_freq = <200000000>;
++	rockchip,sr_idle_dis_freq = <200000000>;
++	rockchip,sr_mc_gate_idle_dis_freq = <200000000>;
++	rockchip,standby_idle_dis_freq = <200000000>;
++};
++
++&dmc_opp_table {
++	opp02 {
++		opp-suspend;
++	};
++
++	/delete-node/ opp03;
++};
++
++/*
++ * HACK for -rev2~3 to bump up voltage
+  *
+ 　* There's some extra voltage drop on early revs of bob due to board layout
+- * problems.  On -rev2 we're almost there, so only 50 mV for center-logic.
++ * problems. On -rev2~3 we're almost there, so only 50 mV for center-logic.
+  *
+  * NOTE: The 'regulator-microvolt-offset' is not a terribly well-tested and
+  * has some quirks (like I think it doesn't necessarily validate constraints
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r4.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r4.dts
+new file mode 100644
+index 000000000000..ed0c81a5089c
+--- /dev/null
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r4.dts
+@@ -0,0 +1,62 @@
++/*
++ * Google Gru-Bob Rev 4+ board device tree source
++ *
++ * Copyright 2016-2017 Google, Inc
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ *  Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/dts-v1/;
++#include "rk3399-gru-bob.dtsi"
++
++/ {
++	model = "Google Bob";
++	compatible = "google,bob-rev13", "google,bob-rev12",
++		     "google,bob-rev11", "google,bob-rev10",
++		     "google,bob-rev9", "google,bob-rev8",
++		     "google,bob-rev7", "google,bob-rev6",
++		     "google,bob-rev5", "google,bob-rev4",
++		     "google,bob", "google,gru", "rockchip,rk3399";
++};
++
++&dmc {
++	rockchip,pd_idle_dis_freq = <800000000>;
++	rockchip,sr_idle_dis_freq = <800000000>;
++	rockchip,sr_mc_gate_idle_dis_freq = <800000000>;
++};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
+index fc5b67808bce..d48786ea3be1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
+@@ -100,14 +100,6 @@
+ 	};
+ };
+ 
+-&dmc_opp_table {
+-	opp02 {
+-		opp-suspend;
+-	};
+-
+-	/delete-node/ opp03;
+-};
+-
+ &edp {
+ 	status = "okay";
+ 
+-- 
+2.17.0
+

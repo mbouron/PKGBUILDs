@@ -1,0 +1,53 @@
+From b8b2a19d40bb4b234194f8869367d4e1f3868e54 Mon Sep 17 00:00:00 2001
+From: Caesar Wang <wxt@rock-chips.com>
+Date: Mon, 20 Feb 2017 19:42:34 +0800
+Subject: [PATCH 05/13] CHROMIUM: arm64: dts: rockchip: Bump voltages for bob
+ rev2+
+
+It appears that we still need a bit of a voltage bump on bob-r2.  Add
+this bump to keep things stable.
+
+BUG=chrome-os-partner:62945,chrome-os-partner:62970
+TEST=Stress bob-r2.
+
+Change-Id: I2358ee8f6173cb03afd2b5ec7292bf6b6f8e2f6f
+Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+Reviewed-on: https://chromium-review.googlesource.com/442927
+Commit-Ready: Philip Chen <philipchen@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Jack Huang <jachuang@chromium.org>
+---
+ .../boot/dts/rockchip/rk3399-gru-bob-r2.dts   | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+index 9c7b4d8ad961..d6bf42633b9e 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dts
+@@ -54,3 +54,23 @@
+ 		     "google,bob-rev3", "google,bob-rev2",
+ 		     "google,bob", "google,gru", "rockchip,rk3399";
+ };
++
++/*
++ * HACK for -rev2 to bump up voltage
++ *
++　* There's some extra voltage drop on early revs of bob due to board layout
++ * problems.  On -rev2 we're almost there, so only 50 mV for little cpu
++ * and center-logic.
++ *
++ * NOTE: The 'regulator-microvolt-offset' is not a terribly well-tested and
++ * has some quirks (like I think it doesn't necessarily validate constraints
++ * properly?), but seems to work and seems better than hardcoding every
++ * operating point everywhere.
++ */
++&ppvar_centerlogic {
++	regulator-microvolt-offset = <50000>;
++};
++
++&ppvar_litcpu {
++	regulator-microvolt-offset = <50000>;
++};
+-- 
+2.17.0
+

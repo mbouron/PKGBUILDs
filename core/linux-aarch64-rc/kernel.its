@@ -23,12 +23,46 @@
                 algo = "sha1";
             };
         };
+        fdt@2{
+            description = "rk3399-gru-bob-r0.dtb";
+            data = /incbin/("arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r0.dtb");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+        };
+        fdt@3{
+            description = "rk3399-gru-bob-r2.dtb";
+            data = /incbin/("arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r2.dtb");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+        };
+        fdt@4{
+            description = "rk3399-gru-bob-r4.dtb";
+            data = /incbin/("arch/arm64/boot/dts/rockchip/rk3399-gru-bob-r4.dtb");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+        };
+
     };
     configurations {
         default = "conf@1";
         conf@1{
             kernel = "kernel@1";
             fdt = "fdt@1";
+        };
+        conf@2{
+            kernel = "kernel@1";
+            fdt = "fdt@2";
+        };
+        conf@3{
+            kernel = "kernel@1";
+            fdt = "fdt@3";
+        };
+        conf@4{
+            kernel = "kernel@1";
+            fdt = "fdt@4";
         };
     };
 };

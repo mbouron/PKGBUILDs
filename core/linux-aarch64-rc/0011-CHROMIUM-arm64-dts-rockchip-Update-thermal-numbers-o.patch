@@ -1,0 +1,50 @@
+From a3681ff85e2154af0ae4497265e7f6094dc9c20c Mon Sep 17 00:00:00 2001
+From: Shasha Zhao <Sarah_Zhao@asus.com>
+Date: Fri, 19 May 2017 12:36:04 +0800
+Subject: [PATCH 11/13] CHROMIUM: arm64: dts: rockchip: Update thermal numbers
+ on rk3399-bob for rev4+
+
+As the real world tests, the target temperature need
+change on bob.
+
+e.g.:
+threshold:65
+target:70
+soc_crit:95
+
+BUG=b:37766152
+TEST=localhost / # grep "" /sys/class/thermal/thermal_zone0/trip_point_*
+     /sys/class/thermal/thermal_zone0/trip_point_0_hyst:2000
+     /sys/class/thermal/thermal_zone0/trip_point_0_temp:65000
+     /sys/class/thermal/thermal_zone0/trip_point_0_type:passive
+     /sys/class/thermal/thermal_zone0/trip_point_1_hyst:2000
+     /sys/class/thermal/thermal_zone0/trip_point_1_temp:70000
+     /sys/class/thermal/thermal_zone0/trip_point_1_type:passive
+     /sys/class/thermal/thermal_zone0/trip_point_2_hyst:2000
+     /sys/class/thermal/thermal_zone0/trip_point_2_temp:95000
+     /sys/class/thermal/thermal_zone0/trip_point_2_type:critical
+
+Change-Id: I6efed03f24d3e32db54d69e251900195c7f7fbcd
+Signed-off-by: Shasha Zhao <Sarah_Zhao@asus.com>
+Reviewed-on: https://chromium-review.googlesource.com/509050
+Reviewed-by: Stephen Barber <smbarber@chromium.org>
+---
+ arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
+index d48786ea3be1..f62f4a601103 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-bob.dtsi
+@@ -128,7 +128,7 @@
+ };
+ 
+ &target {
+-	temperature = <80000>;
++	temperature = <70000>;
+ };
+ 
+ &threshold {
+-- 
+2.17.0
+
